@@ -75,5 +75,8 @@ export type DAVAddressBook = DAVCollection;
 export type DAVCalendar = {
   components?: string[];
   timezone?: string;
+  calendarOrder?: number | string | Record<string, unknown>;
+  calendarEnabled?: boolean;
+  currentUserPrivilegeSet?: any[];
   projectedProps?: Record<string, unknown>;
 } & DAVCollection;

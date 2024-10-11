@@ -144,6 +144,9 @@ export const fetchCalendars = async (params?: {
       [`${DAVNamespaceShort.DAV}:resourcetype`]: {},
       [`${DAVNamespaceShort.CALDAV}:supported-calendar-component-set`]: {},
       [`${DAVNamespaceShort.DAV}:sync-token`]: {},
+      [`${DAVNamespaceShort.OWN_CLOUD}:calendar-enabled`]: {},
+      [`${DAVNamespaceShort.CALDAV_APPLE}:calendar-order`]: {},
+      [`${DAVNamespaceShort.DAV}:current-user-privilege-set'`]: {},
     },
     depth: '1',
     headers: excludeHeaders(headers, headersToExclude),
@@ -173,6 +176,9 @@ export const fetchCalendars = async (params?: {
           ctag: rs.props?.getctag,
           calendarColor: rs.props?.calendarColor,
           displayName: rs.props?.displayname._cdata ?? rs.props?.displayname,
+          calendarOrder: rs.props?.calendarOrder,
+          calendarEnabled: rs.props?.calendarEnabled === 1,
+          currentUserPrivilegeSet: rs.props?.currentUserPrivilegeSet,
           components: Array.isArray(rs.props?.supportedCalendarComponentSet.comp)
             ? rs.props?.supportedCalendarComponentSet.comp.map((sc: any) => sc._attributes.name)
             : [rs.props?.supportedCalendarComponentSet.comp?._attributes.name],
@@ -260,19 +266,19 @@ export const fetchCalendarObjects = async (params: {
           },
           ...(timeRange
             ? {
-                'time-range': {
-                  _attributes: {
-                    start: `${new Date(timeRange.start)
-                      .toISOString()
-                      .slice(0, 19)
-                      .replace(/[-:.]/g, '')}Z`,
-                    end: `${new Date(timeRange.end)
-                      .toISOString()
-                      .slice(0, 19)
-                      .replace(/[-:.]/g, '')}Z`,
-                  },
+              'time-range': {
+                _attributes: {
+                  start: `${new Date(timeRange.start)
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[-:.]/g, '')}Z`,
+                  end: `${new Date(timeRange.end)
+                    .toISOString()
+                    .slice(0, 19)
+                    .replace(/[-:.]/g, '')}Z`,
                 },
-              }
+              },
+            }
             : {}),
         },
       },
@@ -289,19 +295,19 @@ export const fetchCalendarObjects = async (params: {
           [`${DAVNamespaceShort.DAV}:getetag`]: {
             ...(expand && timeRange
               ? {
-                  [`${DAVNamespaceShort.CALDAV}:expand`]: {
-                    _attributes: {
-                      start: `${new Date(timeRange.start)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                      end: `${new Date(timeRange.end)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                    },
+                [`${DAVNamespaceShort.CALDAV}:expand`]: {
+                  _attributes: {
+                    start: `${new Date(timeRange.start)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
+                    end: `${new Date(timeRange.end)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
                   },
-                }
+                },
+              }
               : {}),
           },
         },
@@ -327,19 +333,19 @@ export const fetchCalendarObjects = async (params: {
           [`${DAVNamespaceShort.CALDAV}:calendar-data`]: {
             ...(expand && timeRange
               ? {
-                  [`${DAVNamespaceShort.CALDAV}:expand`]: {
-                    _attributes: {
-                      start: `${new Date(timeRange.start)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                      end: `${new Date(timeRange.end)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                    },
+                [`${DAVNamespaceShort.CALDAV}:expand`]: {
+                  _attributes: {
+                    start: `${new Date(timeRange.start)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
+                    end: `${new Date(timeRange.end)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
                   },
-                }
+                },
+              }
               : {}),
           },
         },
@@ -356,19 +362,19 @@ export const fetchCalendarObjects = async (params: {
           [`${DAVNamespaceShort.CALDAV}:calendar-data`]: {
             ...(expand && timeRange
               ? {
-                  [`${DAVNamespaceShort.CALDAV}:expand`]: {
-                    _attributes: {
-                      start: `${new Date(timeRange.start)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                      end: `${new Date(timeRange.end)
-                        .toISOString()
-                        .slice(0, 19)
-                        .replace(/[-:.]/g, '')}Z`,
-                    },
+                [`${DAVNamespaceShort.CALDAV}:expand`]: {
+                  _attributes: {
+                    start: `${new Date(timeRange.start)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
+                    end: `${new Date(timeRange.end)
+                      .toISOString()
+                      .slice(0, 19)
+                      .replace(/[-:.]/g, '')}Z`,
                   },
-                }
+                },
+              }
               : {}),
           },
         },
@@ -522,10 +528,10 @@ export const syncCalendars: SyncCalendars = async (params: {
 
   return detailedResult
     ? {
-        created,
-        updated,
-        deleted,
-      }
+      created,
+      updated,
+      deleted,
+    }
     : [...unchanged, ...created, ...updatedWithObjects];
 };
 

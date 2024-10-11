@@ -4,6 +4,7 @@ export enum DAVNamespace {
   CALDAV = 'urn:ietf:params:xml:ns:caldav',
   CARDDAV = 'urn:ietf:params:xml:ns:carddav',
   DAV = 'DAV:',
+  OWN_CLOUD = 'http://owncloud.org/ns',
 }
 
 export const DAVAttributeMap = {
@@ -12,6 +13,7 @@ export const DAVAttributeMap = {
   [DAVNamespace.CALENDAR_SERVER]: 'xmlns:cs',
   [DAVNamespace.CALDAV_APPLE]: 'xmlns:ca',
   [DAVNamespace.DAV]: 'xmlns:d',
+  [DAVNamespace.OWN_CLOUD]: 'xmlns:oc',
 };
 
 export enum DAVNamespaceShort {
@@ -20,6 +22,7 @@ export enum DAVNamespaceShort {
   CALENDAR_SERVER = 'cs',
   CALDAV_APPLE = 'ca',
   DAV = 'd',
+  OWN_CLOUD = 'oc',
 }
 
 export enum ICALObjects {
