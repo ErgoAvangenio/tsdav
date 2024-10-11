@@ -190,6 +190,7 @@ export const propfind = async (params: {
             DAVNamespace.CALENDAR_SERVER,
             DAVNamespace.CARDDAV,
             DAVNamespace.DAV,
+            DAVNamespace.OWN_CLOUD,
           ]),
           prop: props,
         },
