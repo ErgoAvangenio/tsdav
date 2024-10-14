@@ -942,7 +942,7 @@ function requireMs () {
 	 * @api public
 	 */
 
-	ms = function (val, options) {
+	ms = function(val, options) {
 	  options = options || {};
 	  var type = typeof val;
 	  if (type === 'string' && val.length > 0) {
@@ -1482,8 +1482,6 @@ var common = setup;
 			return false;
 		}
 
-		let m;
-
 		// Is webkit? http://stackoverflow.com/a/16459606/376773
 		// document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
 		return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
@@ -1491,7 +1489,7 @@ var common = setup;
 			(typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
 			// Is firefox >= v31?
 			// https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-			(typeof navigator !== 'undefined' && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31) ||
+			(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
 			// Double check webkit in userAgent just in case we are in a worker
 			(typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
 	}
@@ -1638,6 +1636,7 @@ var DAVNamespace;
     DAVNamespace["CALDAV"] = "urn:ietf:params:xml:ns:caldav";
     DAVNamespace["CARDDAV"] = "urn:ietf:params:xml:ns:carddav";
     DAVNamespace["DAV"] = "DAV:";
+    DAVNamespace["OWN_CLOUD"] = "http://owncloud.org/ns";
 })(DAVNamespace || (DAVNamespace = {}));
 const DAVAttributeMap = {
     [DAVNamespace.CALDAV]: 'xmlns:c',
@@ -1645,6 +1644,7 @@ const DAVAttributeMap = {
     [DAVNamespace.CALENDAR_SERVER]: 'xmlns:cs',
     [DAVNamespace.CALDAV_APPLE]: 'xmlns:ca',
     [DAVNamespace.DAV]: 'xmlns:d',
+    [DAVNamespace.OWN_CLOUD]: 'xmlns:oc',
 };
 var DAVNamespaceShort;
 (function (DAVNamespaceShort) {
@@ -1653,6 +1653,7 @@ var DAVNamespaceShort;
     DAVNamespaceShort["CALENDAR_SERVER"] = "cs";
     DAVNamespaceShort["CALDAV_APPLE"] = "ca";
     DAVNamespaceShort["DAV"] = "d";
+    DAVNamespaceShort["OWN_CLOUD"] = "oc";
 })(DAVNamespaceShort || (DAVNamespaceShort = {}));
 var ICALObjects;
 (function (ICALObjects) {
@@ -3673,7 +3674,7 @@ EventEmitter.init = function() {
   this.domain = null;
   if (EventEmitter.usingDomains) {
     // if there is an active domain, then attach to it.
-    if (domain.active) ;
+    if (domain.active ) ;
   }
 
   if (!this._events || this._events === Object.getPrototypeOf(this)._events) {
@@ -9207,6 +9208,7 @@ const propfind = async (params) => {
                         DAVNamespace.CALENDAR_SERVER,
                         DAVNamespace.CARDDAV,
                         DAVNamespace.DAV,
+                        DAVNamespace.OWN_CLOUD,
                     ]),
                     prop: props,
                 },
@@ -9786,6 +9788,9 @@ const fetchCalendars = async (params) => {
             [`${DAVNamespaceShort.DAV}:resourcetype`]: {},
             [`${DAVNamespaceShort.CALDAV}:supported-calendar-component-set`]: {},
             [`${DAVNamespaceShort.DAV}:sync-token`]: {},
+            [`${DAVNamespaceShort.OWN_CLOUD}:calendar-enabled`]: {},
+            [`${DAVNamespaceShort.CALDAV_APPLE}:calendar-order`]: {},
+            [`${DAVNamespaceShort.DAV}:current-user-privilege-set'`]: {},
         },
         depth: '1',
         headers: excludeHeaders(headers, headersToExclude),
@@ -9802,7 +9807,7 @@ const fetchCalendars = async (params) => {
         return components.some((c) => Object.values(ICALObjects).includes(c));
     })
         .map((rs) => {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
         // debug(`Found calendar ${rs.props?.displayname}`);
         const description = (_a = rs.props) === null || _a === void 0 ? void 0 : _a.calendarDescription;
         const timezone = (_b = rs.props) === null || _b === void 0 ? void 0 : _b.calendarTimezone;
@@ -9813,12 +9818,15 @@ const fetchCalendars = async (params) => {
             ctag: (_e = rs.props) === null || _e === void 0 ? void 0 : _e.getctag,
             calendarColor: (_f = rs.props) === null || _f === void 0 ? void 0 : _f.calendarColor,
             displayName: (_h = (_g = rs.props) === null || _g === void 0 ? void 0 : _g.displayname._cdata) !== null && _h !== void 0 ? _h : (_j = rs.props) === null || _j === void 0 ? void 0 : _j.displayname,
-            components: Array.isArray((_k = rs.props) === null || _k === void 0 ? void 0 : _k.supportedCalendarComponentSet.comp)
-                ? (_l = rs.props) === null || _l === void 0 ? void 0 : _l.supportedCalendarComponentSet.comp.map((sc) => sc._attributes.name)
-                : [(_o = (_m = rs.props) === null || _m === void 0 ? void 0 : _m.supportedCalendarComponentSet.comp) === null || _o === void 0 ? void 0 : _o._attributes.name],
-            resourcetype: Object.keys((_p = rs.props) === null || _p === void 0 ? void 0 : _p.resourcetype),
-            syncToken: (_q = rs.props) === null || _q === void 0 ? void 0 : _q.syncToken,
-            ...conditionalParam('projectedProps', Object.fromEntries(Object.entries((_r = rs.props) !== null && _r !== void 0 ? _r : {}).filter(([key]) => projectedProps === null || projectedProps === void 0 ? void 0 : projectedProps[key]))),
+            calendarOrder: (_k = rs.props) === null || _k === void 0 ? void 0 : _k.calendarOrder,
+            calendarEnabled: ((_l = rs.props) === null || _l === void 0 ? void 0 : _l.calendarEnabled) === 1,
+            currentUserPrivilegeSet: (_m = rs.props) === null || _m === void 0 ? void 0 : _m.currentUserPrivilegeSet,
+            components: Array.isArray((_o = rs.props) === null || _o === void 0 ? void 0 : _o.supportedCalendarComponentSet.comp)
+                ? (_p = rs.props) === null || _p === void 0 ? void 0 : _p.supportedCalendarComponentSet.comp.map((sc) => sc._attributes.name)
+                : [(_r = (_q = rs.props) === null || _q === void 0 ? void 0 : _q.supportedCalendarComponentSet.comp) === null || _r === void 0 ? void 0 : _r._attributes.name],
+            resourcetype: Object.keys((_s = rs.props) === null || _s === void 0 ? void 0 : _s.resourcetype),
+            syncToken: (_t = rs.props) === null || _t === void 0 ? void 0 : _t.syncToken,
+            ...conditionalParam('projectedProps', Object.fromEntries(Object.entries((_u = rs.props) !== null && _u !== void 0 ? _u : {}).filter(([key]) => projectedProps === null || projectedProps === void 0 ? void 0 : projectedProps[key]))),
         };
     })
         .map(async (cal) => ({
