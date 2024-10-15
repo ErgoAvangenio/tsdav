@@ -92,6 +92,9 @@ export const davRequest = async (params: {
         status: davResponse.status,
         statusText: davResponse.statusText,
         raw: resText,
+        error:{
+          msg:'esta talla pincha',
+        }
       },
     ];
   }
